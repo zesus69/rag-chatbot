@@ -41,7 +41,7 @@ with st.sidebar:
 
 st.subheader("Chat")
 
-query = st.text_input("Ask a question regarding the document")  # Fixed input method
+query = st.text_input("Ask a question regarding the document")  
 
 if query:
     st.session_state.history.append(("user", query))
@@ -52,10 +52,10 @@ if query:
     st.session_state.history.append(("bot", answer))
 
 for role, message in st.session_state.history:
-    with st.chat_message(role):  # Ensure Streamlit version supports this
+    with st.chat_message(role):  
         st.markdown(message)
 
-    if role == "bot" and sources:  # Simplified sources check
+    if role == "bot" and sources:  
         st.markdown("**Sources:**")
         for i, doc in enumerate(sources):
             with st.expander(f"Source {i+1}"):
