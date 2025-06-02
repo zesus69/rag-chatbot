@@ -19,14 +19,14 @@ with st.sidebar:
     url = st.text_input("Enter Website URL")
     uploaded_file = st.file_uploader("Upload PDF or TXT file")
 
-    if st.button("Add Information"):  # Fixed button label
+    if st.button("Add Information"):
         if url:
             with st.spinner("Processing..."):
                 process_url(url)
             st.success("URL has been successfully loaded and added")
         elif uploaded_file:
             file_type = get_filetype(uploaded_file.name)
-            with tempfile.NamedTemporaryFile(delete=False) as temp_file:  # Save uploaded file temporarily
+            with tempfile.NamedTemporaryFile(delete=False) as temp_file:  
                 temp_file.write(uploaded_file.read())
                 temp_file_path = temp_file.name
             with st.spinner("Processing..."):
@@ -36,8 +36,8 @@ with st.sidebar:
             st.warning("Please enter a valid URL or upload a file")
 
     if st.button("Clear chat history"):
-        st.session_state.history = []
-        st.experimental_rerun()
+        st.session_state.history = []  
+        st.experimental_set_query_params()  
 
 st.subheader("Chat")
 
@@ -47,7 +47,7 @@ if query:
     st.session_state.history.append(("user", query))
 
     with st.spinner("Generating..."):
-        answer, sources = ask_question(query, st.session_state.history)
+        answer, source = ask_question(query, st.session_state.history)
 
     st.session_state.history.append(("bot", answer))
 
@@ -55,9 +55,6 @@ for role, message in st.session_state.history:
     with st.chat_message(role):  
         st.markdown(message)
 
-    if role == "bot" and sources:  
-        st.markdown("**Sources:**")
-        for i, doc in enumerate(sources):
-            with st.expander(f"Source {i+1}"):
-                snippet = doc.page_content[:500].replace("\n", " ")
-                st.markdown(snippet)
+    if role == "bot" and source:  
+        st.markdown("**Source:**")
+        st.markdown(source) 

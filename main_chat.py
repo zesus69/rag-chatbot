@@ -63,14 +63,24 @@ def add_doc(texts):
 def ask_question(query, chat_history):
     result = qa_chain({"question": query, "chat_history": chat_history})
     answer = result["answer"]
-    sources = result.get("soruce_documents", [])
-    return answer, sources
+    sources = result.get("source_documents", [])
+    
+
+    source_name = None
+    if sources:
+        metadata = sources[0].metadata  # Get metadata of the first source
+        if "file_path" in metadata:  # For files
+            source_name = os.path.basename(metadata["file_path"])
+        elif "url" in metadata:  # For URLs
+            source_name = metadata["url"]
+    
+    return answer, source_name
 
 def process_file(file, file_type):
     if file_type == "pdf":
-        loader = PyPDFLoader(file_path=file.name)
+        loader = PyPDFLoader(file_path=file)
     else:
-        loader = TextLoader(file_path=file.name)
+        loader = TextLoader(file_path=file)
     docs = loader.load()
     try:
         texts = [doc.page_content for doc in docs]
@@ -94,5 +104,3 @@ def get_filetype(filename):
     else:
         return "txt"
 
-
-# chatbot
