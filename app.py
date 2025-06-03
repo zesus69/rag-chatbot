@@ -11,6 +11,28 @@ import tempfile
 st.set_page_config(page_title="RAG ChatBot", layout="wide")
 st.title("RAG ChatBot with Memory")
 
+# Add custom CSS for the sidebar and buttons
+st.markdown(
+    """
+    <style>
+    [data-testid="stSidebar"] {
+        background-color: #1f2c56;
+    }
+
+    [data-testid="stSidebar"] * {
+        font-family: Arial, sans-serif;
+        font-size: 16px;
+        color: #ff583c
+    }
+    
+    button[data-testid="stButton"] > div {
+        color: #ff583c; 
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
 if "history" not in st.session_state:
     st.session_state.history = []
 
@@ -57,4 +79,4 @@ for role, message in st.session_state.history:
 
     if role == "bot" and source:  
         st.markdown("**Source:**")
-        st.markdown(source) 
+        st.markdown(source)
