@@ -11,28 +11,6 @@ import tempfile
 st.set_page_config(page_title="RAG ChatBot", layout="wide")
 st.title("RAG ChatBot with Memory")
 
-# Add custom CSS for the sidebar and buttons
-st.markdown(
-    """
-    <style>
-    [data-testid="stSidebar"] {
-        background-color: #1f2c56;
-    }
-
-    [data-testid="stSidebar"] * {
-        font-family: Arial, sans-serif;
-        font-size: 16px;
-        color: #ff583c
-    }
-    
-    button[data-testid="stButton"] > div {
-        color: #ff583c; 
-    }
-    </style>
-    """,
-    unsafe_allow_html=True
-)
-
 if "history" not in st.session_state:
     st.session_state.history = []
 
@@ -59,8 +37,7 @@ with st.sidebar:
 
     if st.button("Clear chat history"):
         st.session_state.history = []  
-        st.experimental_set_query_params()  
-
+        st.rerun()
 st.subheader("Chat")
 
 query = st.text_input("Ask a question regarding the document")  

@@ -33,11 +33,14 @@ if os.path.exists(index_path):
 qa_chain = None
 def init_qachain():
     global qa_chain
-    qa_chain = ConversationalRetrievalChain.from_llm(
-        llm=llm,
-        retriever=vectorstore.as_retriever(search_kwargs={"k": 3}),
-        return_source_documents=True,
-    )
+    if vectorstore is not None:
+        qa_chain = ConversationalRetrievalChain.from_llm(
+            llm=llm,
+            retriever=vectorstore.as_retriever(search_kwargs={"k": 3}),
+            return_source_documents=True,
+        )
+    else:
+        print("Error: Vectorstore is not initialized. Cannot create QA chain.")
 
 if vectorstore:
     init_qachain()
@@ -61,11 +64,13 @@ def add_doc(texts):
     init_qachain()
 
 def ask_question(query, chat_history):
+    if qa_chain is None:
+        return "No documents have been added. Please upload a document or provide a URL.", None
+
     result = qa_chain({"question": query, "chat_history": chat_history})
     answer = result["answer"]
     sources = result.get("source_documents", [])
     
-
     source_name = None
     if sources:
         metadata = sources[0].metadata  # Get metadata of the first source
@@ -103,4 +108,18 @@ def get_filetype(filename):
         return "pdf"
     else:
         return "txt"
+
+if os.path.exists(index_path):
+    vectorstore = FAISS.load_local(index_path, embeddings, allow_dangerous_deserialization=True)
+else:
+    # Initialize an empty vectorstore with a placeholder document
+    placeholder_text = "No Documents have been added. Please upload a document or provide a URL."
+    vectorstore = FAISS.from_texts([placeholder_text], embedding=embeddings)
+    try:
+        vectorstore.delete([placeholder_text])  # Remove the placeholder after initialization
+    except Exception as e:
+        print(f"Error removing placeholder: {e}")
+
+if vectorstore:
+    init_qachain()
 
