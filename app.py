@@ -84,19 +84,22 @@ for role, message in st.session_state.history:
 
 # Text input at the bottom
 with st.container():
+    if "input_query" not in st.session_state:
+        st.session_state.input_query = ""
+
     query = st.text_input("Ask a question regarding the document", key="input_query", label_visibility="collapsed")
 
-    # When the user submits a question
-    if query:
-        # Append user's question to history
+    # Only run if query is non-empty and hasn't been processed yet
+    if query and st.session_state.get("last_processed_query") != query:
         st.session_state.history.append(("user", query))
 
-        # Generate answer
         with st.spinner("Generating..."):
             answer, source = ask_question(query, st.session_state.history)
 
-        # Append bot's response
         st.session_state.history.append(("bot", answer))
+        st.session_state.last_processed_query = query  # Mark it as processed
 
-        # Clear the text input
-        st.experimental_rerun()
+        # Clear input
+        st.session_state.input_query = ""
+        st._rerun()
+
