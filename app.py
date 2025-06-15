@@ -9,13 +9,24 @@ import tempfile
 # Load OpenAI API key
 embeddings = OpenAIEmbeddings(openai_api_key=os.getenv("AZURE_OPENAI_API_KEY"))
 
-# Page configuration
+# Configure the page
 st.set_page_config(page_title="RAG ChatBot", layout="wide")
 
-# Custom CSS
+# Custom CSS to fix input box and make chat scrollable
 st.markdown("""
     <style>
-    /* Sidebar hover effect */
+    html, body, [data-testid="stApp"] {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+    }
+
+    .chat-container {
+        max-height: calc(100vh - 120px);
+        overflow-y: auto;
+        padding-bottom: 1rem;
+    }
+
     [data-testid="stSidebar"] {
         transition: all 0.3s ease-in-out;
         width: 0;
@@ -29,44 +40,24 @@ st.markdown("""
         background-color: #f8f9fa;
         border-right: 1px solid #ddd;
     }
+
     [data-testid="stSidebar"]:hover {
         width: 300px !important;
         opacity: 1;
         padding: 1rem;
-    }
-
-    /* Fix input form at bottom */
-    .chat-input-container {
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        background-color: white;
-        padding: 10px 20px;
-        box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
-        z-index: 9999;
-    }
-
-    /* Make chat container scrollable */
-    .chat-container {
-        padding-bottom: 100px;  /* leave space for input */
-    }
-
-    textarea {
-        font-size: 16px !important;
     }
     </style>
 """, unsafe_allow_html=True)
 
 st.title("🧠 RAG ChatBot with Memory")
 
-# Session state
+# Session state initialization
 if "history" not in st.session_state:
     st.session_state.history = []
 if "input_query" not in st.session_state:
     st.session_state.input_query = ""
 
-# Sidebar input
+# Sidebar (hover to show)
 with st.sidebar:
     st.header("Add External Information")
     url = st.text_input("Enter Website URL")
@@ -93,7 +84,7 @@ with st.sidebar:
         st.session_state.input_query = ""
         st.rerun()
 
-# Display chat history
+# Chat display section
 with st.container():
     st.markdown('<div class="chat-container">', unsafe_allow_html=True)
     for role, message in st.session_state.history:
@@ -101,22 +92,20 @@ with st.container():
             st.markdown(message)
     st.markdown('</div>', unsafe_allow_html=True)
 
-# Input form fixed at bottom
-st.markdown('<div class="chat-input-container">', unsafe_allow_html=True)
-with st.form("chat_input_form", clear_on_submit=True):
-    user_input = st.text_area("Ask a question regarding the document", key="input_box", label_visibility="collapsed", height=60)
-    submitted = st.form_submit_button("Send")
+# Bottom input box (like ChatGPT)
+user_input = st.chat_input("Ask a question...")
 
-    if submitted and user_input.strip():
-        user_input = user_input.strip()
-        st.session_state.history.append(("user", user_input))
+# When user submits a query
+if user_input and user_input.strip():
+    user_input = user_input.strip()
+    st.session_state.history.append(("user", user_input))
 
-        with st.spinner("Generating..."):
-            answer, source = ask_question(user_input, st.session_state.history)
+    with st.spinner("Generating..."):
+        answer, source = ask_question(user_input, st.session_state.history)
 
-        st.session_state.history.append(("bot", answer))
-        if source:
-            st.session_state.history.append(("bot", f"**Source:**\n{source}"))
+    st.session_state.history.append(("bot", answer))
 
-        st.experimental_rerun()
-st.markdown('</div>', unsafe_allow_html=True)
+    if source:
+        st.session_state.history.append(("bot", f"**Source:**\n{source}"))
+
+    st.rerun()
