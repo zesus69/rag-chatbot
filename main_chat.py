@@ -18,10 +18,10 @@ llm = AzureChatOpenAI(
 )
 
 embeddings = AzureOpenAIEmbeddings(
-    model="text-embedding-3-large",
-    api_key="e11b852a42dc4318ae635d91234bd972",
-    api_version="2023-05-15",
-    azure_endpoint="https://ai-aistudio-ailearn.cognitiveservices.azure.com/",
+    model=os.getenv("AZURE_OPENAI_EMBEDDINGS_DEPLOYMENT_NAME"),
+    api_key=os.getenv("AZURE_OPENAI_EMBEDDINGS_API_KEY"),
+    api_version=os.getenv("AZURE_OPENAI_EMBEDDINGS_VERSION"),
+    azure_endpoint=os.getenv("AZURE_OPENAI_EMBEDDINGS_ENDPOINT"),
     chunk_size=2048
 )
 
@@ -36,7 +36,7 @@ def init_qachain():
     if vectorstore is not None:
         qa_chain = ConversationalRetrievalChain.from_llm(
             llm=llm,
-            retriever=vectorstore.as_retriever(search_kwargs={"k": 3}),
+            retriever=vectorstore.as_retriever(search_kwargs={"k": 1}),
             return_source_documents=True,
         )
     else:
@@ -64,8 +64,6 @@ def add_doc(texts):
     init_qachain()
 
 def ask_question(query, chat_history):
-    if qa_chain is None:
-        return "No documents have been added. Please upload a document or provide a URL.", None
 
     result = qa_chain({"question": query, "chat_history": chat_history})
     answer = result["answer"]

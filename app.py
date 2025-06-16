@@ -10,7 +10,7 @@ import tempfile
 embeddings = OpenAIEmbeddings(openai_api_key=os.getenv("AZURE_OPENAI_API_KEY"))
 
 # Configure the page
-st.set_page_config(page_title="RAG ChatBot", layout="wide")
+st.set_page_config(page_title="RAGBot", layout="wide")
 
 # Custom CSS to fix input box and make chat scrollable
 st.markdown("""
@@ -49,7 +49,7 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-st.title("🧠 RAG ChatBot with Memory")
+st.title("RAGBot")
 
 # Session state initialization
 if "history" not in st.session_state:
@@ -57,7 +57,7 @@ if "history" not in st.session_state:
 if "input_query" not in st.session_state:
     st.session_state.input_query = ""
 
-# Sidebar (hover to show)
+# Sidebar
 with st.sidebar:
     st.header("Add External Information")
     url = st.text_input("Enter Website URL")
@@ -92,7 +92,7 @@ with st.container():
             st.markdown(message)
     st.markdown('</div>', unsafe_allow_html=True)
 
-# Bottom input box (like ChatGPT)
+# Bottom input box 
 user_input = st.chat_input("Ask a question...")
 
 # When user submits a query
