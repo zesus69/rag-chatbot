@@ -3,7 +3,7 @@ from langchain.embeddings import OpenAIEmbeddings
 import os
 from dotenv import load_dotenv
 load_dotenv()
-from main_chat import process_file, process_url, ask_question, get_filetype
+from main_chat import process_file, process_url, ask_question, get_filetype, clear_all
 import tempfile
 
 # Load OpenAI API key
@@ -56,11 +56,19 @@ if "history" not in st.session_state:
     st.session_state.history = []
 if "input_query" not in st.session_state:
     st.session_state.input_query = ""
+if "input_url" not in st.session_state:
+    st.session_state.clear_triggered = False
+
+if st.session_state.clear_triggered:
+    st.session_state.history = []
+    st.session_state.input_query = ""
+    st.session_state.input_url = ""
+    st.session_state.clear_triggered = False
 
 # Sidebar
 with st.sidebar:
     st.header("Add External Information")
-    url = st.text_input("Enter Website URL")
+    url = st.text_input("Enter Website URL",key="input_url")
     uploaded_file = st.file_uploader("Upload PDF or TXT file")
 
     if st.button("Add Information"):
@@ -82,6 +90,8 @@ with st.sidebar:
     if st.button("Clear chat history"):
         st.session_state.history = []
         st.session_state.input_query = ""
+        st.session_state.clear_triggered = True
+        clear_all()
         st.rerun()
 
 # Chat display section
