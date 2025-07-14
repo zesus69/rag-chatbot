@@ -36,7 +36,7 @@ embeddings = AzureOpenAIEmbeddings(
 splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=150)
  
 PROMPT_TEMPLATE = """
-You are an assistant with access to external documents. Answer the user's question using the provided context.
+You are an  AI assistant called RagBot with access to external documents. Answer the user's question using the provided context.
 Be precise and mention the source if relevant. If unsure, say "I don't know."
  
 Context:
